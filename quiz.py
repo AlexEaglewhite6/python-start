@@ -1,25 +1,25 @@
+import random
+
+questions= [
+    {"text" : "Столица России? ", "answer" : "Москва"},
+    {"text" : "Сколько планет в солнечной системе? ", "answer" : "8"},
+    {"text" : "Сколько официальных языков в Швейцарии? ", "answer" : "4"}
+]
+
 name = input("Как тебя зовут? ")
 points = 0
 
 print(f"{name}, тебе нужно пройти викторину из 3-х вопросов.")
 
-if input("1. Столица России? ") == "Москва":
-    points = points + 1
-    print("Правильной!")
-else:
-    print("Неправильной! Правильный ответ: Москва")
+random.shuffle(questions)
+for question in questions:
+    user_answer = input(f"{question.get("text")}").strip().lower()
 
-if int(input("2. Сколько планет в солнечной системе? ")) == 8:
-    points = points + 1
-    print("Правильно!")
-else:
-    print("Неправильно! Правильный ответ: 8")
-
-if int(input("3. Сколько официальных языков в Швейцарии? ")) == 4:
-    points = points + 1
-    print("Правильно!")
-else:
-    print("Неправильно! Правильный ответ: 4")
+    if (user_answer == question.get("answer").strip().lower()):
+        points += 1
+        print("Правильно!")
+    else:
+        print(f"Неправильной! Правильный ответ: {question.get("answer")}")
 
 if points == 0:
     print("Ты вообще что-то знаешь?")
