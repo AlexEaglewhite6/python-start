@@ -21,8 +21,9 @@ closing_time_sec = closing_hour * 3600 + closing_minute * 60
 assortment = []
 discounts = [0, 5, 10, 15]
 with open("assortment.csv", "r", encoding="utf-8") as f:
+    next(f)
     for line in f:
-        assortment.append(f.readline().strip().split(","))
+        assortment.append(line.strip().split(","))
 
 with open("orders.csv", "w", encoding="utf-8", newline="") as f:
     writer = csv.DictWriter(f, fieldnames=
@@ -34,7 +35,7 @@ with open("orders.csv", "w", encoding="utf-8", newline="") as f:
                              "qty",
                              "discount"])
     writer.writeheader()
-    i = 0
+    i = 1
     while i <= 200:
         random_date = datetime.date.fromordinal(random.randint(date_random_from, date_random_to)).strftime("%d.%m.%Y")
         random_time_sec = random.randint(opening_time_sec, closing_time_sec)
