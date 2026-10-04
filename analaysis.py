@@ -1,6 +1,7 @@
 import csv
 
-revenue = 0
+gross_revenue = 0
+net_revenue = 0
 min_order = 0
 max_order = 0
 orders = []
@@ -24,24 +25,25 @@ count_of_orders = len(orders) - 1
 min_order_revenue = orders[0]["price"] * orders[0]["qty"]
 max_order_revenue = min_order_revenue
 for order in orders:
-    order_revenue = order["price"] * order["qty"]
-    revenue += order_revenue
+    order_gross_revenue = order["price"] * order["qty"]
+    gross_revenue += order_gross_revenue
+    order_net_revenue = order_gross_revenue * (1 - order["discount"]/100)
+    net_revenue += order_net_revenue
 
-
-    print(min_order_revenue)
-
-    if order_revenue < min_order_revenue:
-        min_order_revenue = order_revenue
+    if order_gross_revenue < min_order_revenue:
+        min_order_revenue = order_gross_revenue
         min_order = order
-    elif order_revenue > max_order_revenue:
-        max_order_revenue = order_revenue
+    elif order_gross_revenue > max_order_revenue:
+        max_order_revenue = order_gross_revenue
         max_order = order
     
 
-average_check = revenue / count_of_orders
+average_check = gross_revenue / count_of_orders
 
 print(f"Всего заказов: {count_of_orders}")
-print(f"Общая выручка: {revenue:,}")
+print(f"Валовая выручка: {gross_revenue:,}")
+print(f"Реальная выручка: {net_revenue:,}")
+print(f"Издержки на скидки: {(gross_revenue - net_revenue):,}")
 print(f"Средний чек: {average_check:,}")
 print("\nМинимальный заказ:")
 print(f"Дата: {min_order["date"]}\nПродукт: {min_order["product"]}\nЦена: {min_order["price"]}\nКоличество: {min_order["qty"]}\nСумма заказа: {min_order_revenue}")
