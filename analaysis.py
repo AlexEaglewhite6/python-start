@@ -24,7 +24,7 @@ with open("orders.csv", "r", encoding="utf-8") as f:
             }
         )
 
-count_of_orders = len(orders) - 1
+count_of_orders = len(orders)
 min_order_revenue = orders[0]["price"] * orders[0]["qty"]
 max_order_revenue = min_order_revenue
 
@@ -67,11 +67,14 @@ print("\nМаксимальный заказ: ")
 print(f"Дата: {max_order["date"]}\nПродукт: {max_order["product"]}\nЦена: {max_order["price"]}\nКоличество: {max_order["qty"]}\nСумма заказа: {max_order_revenue}")
 print("\nАнализ продаж по категориям\n")
 
+revenue_by_categories = {}
 for category, data in stats.items():
+    revenue_by_categories[category] = data["revenue"]
     print(f"Категория: {category}")
     print(f"Количество заказов: {data["orders"]}")
     print(f"Чистая выручка: {data["revenue"]:,}")
     category_average_check = data["revenue"]/data["orders"]
     print(f"Средний чек: {category_average_check:,.2f}\n")
 
-    
+print(f"Худшая категория: {min(revenue_by_categories, key=revenue_by_categories.get)}")
+print(f"Лучшая категория: {max(revenue_by_categories, key=revenue_by_categories.get)}")
