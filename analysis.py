@@ -34,11 +34,11 @@ def total_revenue(orders, discounts = False):
 def format_order(order):
     print(f"Дата: {order["date"]}\n")
     print(f"Продукт: {order["product"]}")
-    print(f"Цена: {order["price"]:,}")
-    print(f"Количество: {order["qty"]:,}\n")
-    print(f"Cумма заказа (без скидки): {revenue(order["price"], order["qty"]):,}")
-    print(f"Скидка: {order["discount"]}")
-    print(f"Сумма заказа (со скидкой): {revenue(order["price"], order["qty"], order["discount"]):,}")
+    print(f"Цена: {order["price"]:,} руб.")
+    print(f"Количество: {order["qty"]:,} шт.\n")
+    print(f"Cумма заказа (без скидки): {revenue(order["price"], order["qty"]):,} руб.")
+    print(f"Скидка: {order["discount"]}%")
+    print(f"Сумма заказа (со скидкой): {revenue(order["price"], order["qty"], order["discount"]):,} руб.")
 
 def percent(a, b):
     return a * 100 / b
@@ -75,11 +75,11 @@ max_order = max(orders, key = lambda o : revenue(o["price"], o["qty"], o["discou
 #---------------------------------------------------
 print("ОБЩАЯ СВОДКА\n")
 print(f"Общее количество заказов: {count_of_orders}")
-print(f"Валовая выручка: {total_gross_revenue:,.2f}")
-print(f"Реальная выручка: {total_net_revenue:,.2}")
-print(f"Издержки на скидки: {total_discount_costs:,.2f}")
+print(f"Валовая выручка: {total_gross_revenue:,.2f} руб.")
+print(f"Реальная выручка: {total_net_revenue:,.2f} руб.")
+print(f"Издержки на скидки: {total_discount_costs:,.2f} руб.")
 print(f"Доля издержек в выручке: {percent(total_discount_costs, total_gross_revenue):.2f}%")
-print(f"Средний чек: {avg_check:,.2f}")
+print(f"Средний чек: {avg_check:,.2f} руб.")
 print("\nМинимальный заказ:\n")
 format_order(min_order)
 
@@ -107,14 +107,34 @@ for cat, stat in by_category.items():
     discount_cost = gross_revenue - net_revenue
     print(f"Категория: {cat}\n")
     print(f"Количество заказов: {stat["orders"]}")
-    print(f"Валовая выручка: {gross_revenue:,.2f}")
-    print(f"Чистая выручка: {net_revenue:,.2f}")
-    print(f"Издержки на скидках: {discount_cost:,.2f}")
+    print(f"Валовая выручка: {gross_revenue:,.2f} руб.")
+    print(f"Чистая выручка: {net_revenue:,.2f} руб.")
+    print(f"Издержки на скидках: {discount_cost:,.2f} руб.")
     print(f"Доля издержек в категории: {percent(discount_cost, net_revenue):,.2f}%")
-    print(f"Средний чек: {stat["net_revenue"]/stat["orders"]:,.2f}")
+    print(f"Средний чек: {stat["net_revenue"]/stat["orders"]:,.2f} руб.")
     print(f"Доля от общей выручки: {percent(stat["net_revenue"], total_net_revenue):,.2f}%\n\n")
 
 print("ТОП 5 ТОВАРОВ\n")
 
-top_by_revenue = []
-top_by_qty = []
+revenue_by_products = {}
+qty_by_products = {}
+for o in orders:
+    if o["product"] not in qty_by_products:
+        qty_by_products[o["product"]] = o["qty"]
+    else:
+        qty_by_products[o["product"]] += o["qty"]
+
+    if o["product"] not in revenue_by_products:
+        revenue_by_products[o["product"]] = revenue(o["price"], o["qty"], o["discount"])
+    else:
+        revenue_by_products[o["product"]] += revenue(o["price"], o["qty"], o["discount"])
+
+top_by_qty = sorted(qty_by_products, key= lambda product : qty_by_products[product], reverse=True)[:5]
+top_by_revenue = sorted(revenue_by_products, key = lambda product: revenue_by_products[product], reverse=True)[:5]
+
+print("Топ 5 товаров по выручке:\n")
+for i, product in enumerate(top_by_revenue, start=1):
+    print(f"{i}. {product} - {revenue_by_products[product]:,.2f} руб.")
+print("\nТоп 5 товаров по количеству:\n")
+for i, product in enumerate(top_by_qty, start=1):
+    print(f"{i}. {product} - {qty_by_products[product]} шт.")
