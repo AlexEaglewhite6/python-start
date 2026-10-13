@@ -40,6 +40,8 @@ def format_order(order):
     print(f"Скидка: {order["discount"]}")
     print(f"Сумма заказа (со скидкой): {revenue(order["price"], order["qty"], order["discount"]):,}")
 
+def percent(a, b):
+    return a * 100 / b
 #---------------------------------------------------
 # ЧТЕНИЕ CSV ФАЙЛА
 #---------------------------------------------------
@@ -64,6 +66,7 @@ count_of_orders = len(orders) # количество заказов
 
 total_gross_revenue = total_revenue(orders)
 total_net_revenue = total_revenue(orders, True)
+total_discount_costs = total_gross_revenue - total_net_revenue
 avg_check = total_net_revenue / count_of_orders
 min_order = min(orders, key = lambda o : revenue(o["price"], o["qty"], o["discount"]))
 max_order = max(orders, key = lambda o : revenue(o["price"], o["qty"], o["discount"]))
@@ -72,11 +75,11 @@ max_order = max(orders, key = lambda o : revenue(o["price"], o["qty"], o["discou
 #---------------------------------------------------
 print("ОБЩАЯ СВОДКА\n")
 print(f"Общее количество заказов: {count_of_orders}")
-print(f"Валовая выручка: {total_gross_revenue:,}")
-print(f"Реальная выручка: {total_net_revenue:,}")
-print(f"Издержки на скидки: {(total_gross_revenue - total_net_revenue):,}")
-print(f"Средний чек: {avg_check:,}")
-
+print(f"Валовая выручка: {total_gross_revenue:,.2f}")
+print(f"Реальная выручка: {total_net_revenue:,.2}")
+print(f"Издержки на скидки: {total_discount_costs:,.2f}")
+print(f"Доля издержек в выручке: {percent(total_discount_costs, total_gross_revenue):.2f}%")
+print(f"Средний чек: {avg_check:,.2f}")
 print("\nМинимальный заказ:\n")
 format_order(min_order)
 
@@ -99,8 +102,19 @@ for o in orders:
         by_category[o["category"]]["net_revenue"] += revenue(o["price"], o["qty"], o["discount"])
 
 for cat, stat in by_category.items():
+    gross_revenue = stat["gross_revenue"]
+    net_revenue = stat["net_revenue"]
+    discount_cost = gross_revenue - net_revenue
     print(f"Категория: {cat}\n")
     print(f"Количество заказов: {stat["orders"]}")
-    print(f"Валовая выручка: {stat["gross_revenue"]:,.2f}")
-    print(f"Чистая выручка: {stat["net_revenue"]:,.2f}")
-    print(f"Средний чек: {stat["net_revenue"]/stat["orders"]:,.2f}\n\n")
+    print(f"Валовая выручка: {gross_revenue:,.2f}")
+    print(f"Чистая выручка: {net_revenue:,.2f}")
+    print(f"Издержки на скидках: {discount_cost:,.2f}")
+    print(f"Доля издержек в категории: {percent(discount_cost, net_revenue):,.2f}%")
+    print(f"Средний чек: {stat["net_revenue"]/stat["orders"]:,.2f}")
+    print(f"Доля от общей выручки: {percent(stat["net_revenue"], total_net_revenue):,.2f}%\n\n")
+
+print("ТОП 5 ТОВАРОВ\n")
+
+top_by_revenue = []
+top_by_qty = []
