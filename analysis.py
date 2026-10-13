@@ -7,11 +7,38 @@ import csv
 #---------------------------------------------------
 # ПЕРЕМЕННЫЕ
 #---------------------------------------------------
-gross_revenue = 0
-net_revenue = 0
 orders = [] # Список из словарей заказов
-categories = []
-stats = {}
+
+#---------------------------------------------------
+# ФУНКЦИИ
+#---------------------------------------------------
+
+#---------------------------------------------------
+# Считае выручку с учетом и без учета скидки
+def revenue(price, qty, discount = 0):
+    return price * qty * ( 1 - discount / 100 )
+#---------------------------------------------------
+# Считает общую выручку за несколько заказов (по умолчанию без учета скидок)
+def total_revenue(orders, discounts = False):
+    total = 0
+    if discounts == True:
+        for o in orders:
+            total += revenue(o["price"], o["qty"], o["discount"])
+        return total
+    else:
+        for o in orders:
+            total += revenue(o["price"], o["qty"])
+        return total
+#---------------------------------------------------
+# Выводит форматированное представление заказа
+def format_order(order):
+    print(f"Дата: {order["date"]}\n")
+    print(f"Продукт: {order["product"]}")
+    print(f"Цена: {order["price"]:,}")
+    print(f"Количество: {order["qty"]:,}\n")
+    print(f"Cумма заказа (без скидки): {revenue(order["price"], order["qty"]):,}")
+    print(f"Скидка: {order["discount"]}")
+    print(f"Сумма заказа (со скидкой): {revenue(order["price"], order["qty"], order["discount"]):,}")
 
 #---------------------------------------------------
 # ЧТЕНИЕ CSV ФАЙЛА
@@ -35,57 +62,45 @@ with open("orders.csv", "r", encoding="utf-8") as f:
 
 count_of_orders = len(orders) # количество заказов
 
-min_order_revenue = orders[0]["price"] * orders[0]["qty"]
-max_order_revenue = min_order_revenue
-
-for order in orders:
-    category = order["category"]
-    if category not in categories:
-        categories.append(category)
-
-    if category not in stats:
-        stats[category] = {"orders" : 0, "revenue" : 0}
-
-    order_gross_revenue = order["price"] * order["qty"]
-    gross_revenue += order_gross_revenue
-    order_net_revenue = order_gross_revenue * (1 - order["discount"]/100)
-    net_revenue += order_net_revenue
-
-    stats[category]["orders"] += 1
-    stats[category]["revenue"] += order_net_revenue
-
-    if order_gross_revenue < min_order_revenue:
-        min_order_revenue = order_gross_revenue
-        min_order = order
-    elif order_gross_revenue > max_order_revenue:
-        max_order_revenue = order_gross_revenue
-        max_order = order
-    
-
-average_check = net_revenue / count_of_orders
-
+total_gross_revenue = total_revenue(orders)
+total_net_revenue = total_revenue(orders, True)
+avg_check = total_net_revenue / count_of_orders
+min_order = min(orders, key = lambda o : revenue(o["price"], o["qty"], o["discount"]))
+max_order = max(orders, key = lambda o : revenue(o["price"], o["qty"], o["discount"]))
 #---------------------------------------------------
 # ВЫВОД АНАЛИЗА
 #---------------------------------------------------
-print(f"Всего заказов: {count_of_orders}")
-print(f"Валовая выручка: {gross_revenue:,}")
-print(f"Реальная выручка: {net_revenue:,}")
-print(f"Издержки на скидки: {(gross_revenue - net_revenue):,}")
-print(f"Средний чек: {average_check:,}")
-print("\nМинимальный заказ:")
-print(f"Дата: {min_order["date"]}\nПродукт: {min_order["product"]}\nЦена: {min_order["price"]}\nКоличество: {min_order["qty"]}\nСумма заказа: {min_order_revenue}")
-print("\nМаксимальный заказ: ")
-print(f"Дата: {max_order["date"]}\nПродукт: {max_order["product"]}\nЦена: {max_order["price"]}\nКоличество: {max_order["qty"]}\nСумма заказа: {max_order_revenue}")
-print("\nАнализ продаж по категориям\n")
+print("ОБЩАЯ СВОДКА\n")
+print(f"Общее количество заказов: {count_of_orders}")
+print(f"Валовая выручка: {total_gross_revenue:,}")
+print(f"Реальная выручка: {total_net_revenue:,}")
+print(f"Издержки на скидки: {(total_gross_revenue - total_net_revenue):,}")
+print(f"Средний чек: {avg_check:,}")
 
-revenue_by_categories = {}
-for category, data in stats.items():
-    revenue_by_categories[category] = data["revenue"]
-    print(f"Категория: {category}")
-    print(f"Количество заказов: {data["orders"]}")
-    print(f"Чистая выручка: {data["revenue"]:,}")
-    category_average_check = data["revenue"]/data["orders"]
-    print(f"Средний чек: {category_average_check:,.2f}\n")
+print("\nМинимальный заказ:\n")
+format_order(min_order)
 
-print(f"Худшая категория: {min(revenue_by_categories, key=revenue_by_categories.get)}")
-print(f"Лучшая категория: {max(revenue_by_categories, key=revenue_by_categories.get)}")
+print("\nМаксимальный заказ:\n")
+format_order(max_order)
+
+print("\nВЫРУЧКА ПО КАТЕГОРИЯМ\n")
+
+by_category = {}
+for o in orders:
+    if o["category"] not in by_category:
+        by_category[o["category"]] = {
+            "orders" : 1,
+            "gross_revenue" : revenue(o["price"], o["qty"]),
+            "net_revenue" : revenue(o["price"], o["qty"], o["discount"]),
+        }
+    else:
+        by_category[o["category"]]["orders"] += 1
+        by_category[o["category"]]["gross_revenue"] += revenue(o["price"], o["qty"])
+        by_category[o["category"]]["net_revenue"] += revenue(o["price"], o["qty"], o["discount"])
+
+for cat, stat in by_category.items():
+    print(f"Категория: {cat}\n")
+    print(f"Количество заказов: {stat["orders"]}")
+    print(f"Валовая выручка: {stat["gross_revenue"]:,.2f}")
+    print(f"Чистая выручка: {stat["net_revenue"]:,.2f}")
+    print(f"Средний чек: {stat["net_revenue"]/stat["orders"]:,.2f}\n\n")
