@@ -1,15 +1,23 @@
+#---------------------------------------------------
+# БИБЛИОТЕКИ
+#---------------------------------------------------
 import csv
+#---------------------------------------------------
 
+#---------------------------------------------------
+# ПЕРЕМЕННЫЕ
+#---------------------------------------------------
 gross_revenue = 0
 net_revenue = 0
-min_order = 0
-max_order = 0
-orders = []
+orders = [] # Список из словарей заказов
 categories = []
 stats = {}
 
+#---------------------------------------------------
+# ЧТЕНИЕ CSV ФАЙЛА
+#---------------------------------------------------
 with open("orders.csv", "r", encoding="utf-8") as f:
-    next(f)
+    next(f) #Пропуск заголовка
     for line in f:
         order = line.strip().split(",")
         orders.append(
@@ -23,8 +31,10 @@ with open("orders.csv", "r", encoding="utf-8") as f:
                 "discount" : int(order[6])
             }
         )
+#---------------------------------------------------
 
-count_of_orders = len(orders)
+count_of_orders = len(orders) # количество заказов
+
 min_order_revenue = orders[0]["price"] * orders[0]["qty"]
 max_order_revenue = min_order_revenue
 
@@ -54,8 +64,9 @@ for order in orders:
 
 average_check = net_revenue / count_of_orders
 
-
-
+#---------------------------------------------------
+# ВЫВОД АНАЛИЗА
+#---------------------------------------------------
 print(f"Всего заказов: {count_of_orders}")
 print(f"Валовая выручка: {gross_revenue:,}")
 print(f"Реальная выручка: {net_revenue:,}")
