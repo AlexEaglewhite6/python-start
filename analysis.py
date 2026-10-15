@@ -169,3 +169,12 @@ print("\nВЫРУЧКА ПО МЕСЯЦАМ\n")
 for month_name in MONTH:
     if month_name in revenue_by_month:
         print(f"{month_name} - {revenue_by_month[month_name]:,.2f} руб.")
+
+best_cat = max(by_category, key=lambda c: by_category[c]["net_revenue"]) 
+best_cat_rev = by_category[best_cat]["net_revenue"]
+worst_cat = min(by_category, key=lambda c: by_category[c]["net_revenue"])
+worst_cat_rev = by_category[worst_cat]["net_revenue"]
+print("\n\nКатегория лидер по продажам:\n")
+print(f"{best_cat} - {best_cat_rev:,.2f} руб. ({percent(best_cat_rev, total_net_revenue):.2f})%")
+print("\nКатегория аутсайдер по продажам:\n")
+print(f"{worst_cat} - {worst_cat_rev:,.2f} руб. ({percent(worst_cat_rev, total_net_revenue):.2f}%)")
