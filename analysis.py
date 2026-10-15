@@ -2,13 +2,15 @@
 # БИБЛИОТЕКИ
 #---------------------------------------------------
 import csv
+from datetime import datetime
 #---------------------------------------------------
 
 #---------------------------------------------------
 # ПЕРЕМЕННЫЕ
 #---------------------------------------------------
 orders = [] # Список из словарей заказов
-
+WEEKDAYS = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+MONTH = ["", "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
 #---------------------------------------------------
 # ФУНКЦИИ
 #---------------------------------------------------
@@ -138,3 +140,32 @@ for i, product in enumerate(top_by_revenue, start=1):
 print("\nТоп 5 товаров по количеству:\n")
 for i, product in enumerate(top_by_qty, start=1):
     print(f"{i}. {product} - {qty_by_products[product]} шт.")
+
+
+revenue_by_weekdays = {}
+revenue_by_month = {}
+
+for o in orders:
+    dt = datetime.strptime(o["date"], "%d.%m.%Y %H:%M:%S")
+    weekday = WEEKDAYS[dt.weekday()]
+    month = MONTH[dt.month]
+    if weekday not in revenue_by_weekdays:
+        revenue_by_weekdays[weekday] = 0
+    else:
+        revenue_by_weekdays[weekday] += revenue(o["price"], o["qty"], o["discount"])
+
+    if month not in revenue_by_month:
+        revenue_by_month[month] = 0
+    else:
+        revenue_by_month[month] += revenue(o["price"], o["qty"], o["discount"])
+
+print("\nВЫРУЧКА ПО ДНЯМ НЕДЕЛИ:\n")
+
+for week_name in WEEKDAYS:
+    if week_name in revenue_by_weekdays:
+        print(f"{week_name} - {revenue_by_weekdays[week_name]:,.2f} руб.")
+
+print("\nВЫРУЧКА ПО МЕСЯЦАМ\n")
+for month_name in MONTH:
+    if month_name in revenue_by_month:
+        print(f"{month_name} - {revenue_by_month[month_name]:,.2f} руб.")
